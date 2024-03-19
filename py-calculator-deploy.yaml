@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: py-calculator-deploy
+  name: py-calculator-deploy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: py-calculator-deploy
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: py-calculator-deploy
+    spec:
+      containers:
+      - command:
+        - python
+        image: python:3.8
+        name: python
+        resources: {}
+status: {}
