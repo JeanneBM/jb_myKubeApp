@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: py-calculator-pod
+  name: py-calculator-pod
+spec:
+  containers:
+  - args:
+    - python
+    image: python:3.8
+    name: py-calculator-pod
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
