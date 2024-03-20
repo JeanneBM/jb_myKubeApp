@@ -1,3 +1,7 @@
+### Namespaces
+kubectl create ns py-calculator-ns
+kubectl create ns java-welcoming-ns
+
 ### Pod 
 kubectl run py-calculator-pod --image python:3.8 -- python
 
