@@ -1,5 +1,6 @@
 ### Namespaces
 kubectl create ns py-calculator-ns
+
 kubectl create ns java-welcoming-ns
 
 ### Pod 
