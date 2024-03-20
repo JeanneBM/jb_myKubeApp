@@ -1,0 +1,11 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: py-network-policy
+spec:
+  podSelector: {}
+  ingress:
+  - {}
+  policyTypes:
+  - Ingress
