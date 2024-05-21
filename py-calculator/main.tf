@@ -1,4 +1,4 @@
-## to add /n for multi-line string
+## to add /n for multi-line string or EOF heredoc
 
 resource "local_file" "py_python" {
   filename  = "./app.py"
