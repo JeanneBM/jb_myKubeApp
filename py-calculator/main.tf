@@ -114,3 +114,15 @@ resource "local_file" "requirements" {
   filename     = "./requirements.txt"
   content  = "black==21.5b1/nclick==7.1.2/nFlask==1.1.2/nitsdangerous==1.1.0/nJinja2==2.11.3/nMarkupSafe==1.1.1/nWerkzeug==1.0.1"
 }
+
+resource "local_file" "requirements1" {
+  filename     = "./requirements1.txt"
+  content  = <<-EOF
+black==21.5b1click==7.1.2
+Flask==1.1.2
+itsdangerous==1.1.0
+Jinja2==2.11.3
+MarkupSafe==1.1.1
+Werkzeug==1.0.1
+EOF
+}
