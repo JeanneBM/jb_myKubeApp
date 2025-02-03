@@ -42,13 +42,15 @@ spec:
     nodePort: 30000
   selector:
     app: jenkins
+---
+    
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jenkins
   namespace: jenkins
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: jenkins
