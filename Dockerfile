@@ -42,3 +42,4 @@ EXPOSE 8080
 
 # Default command to list nodes in the cluster
 CMD ["kubectl", "get", "nodes"]
+CMD ["kubectl", "create", "namespace", "jenkins"]
