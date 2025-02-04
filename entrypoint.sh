@@ -15,7 +15,7 @@ if ! kind get clusters | grep -q "local-cluster"; then
 fi
 
 # Create Jenkins namespace
-kubectl create namespace jenkins --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace jenkins
 
 # Keep container running
 exec "$@"
