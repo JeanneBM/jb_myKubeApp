@@ -1,3 +1,8 @@
+## 00.00.01 (05/02/2025)
+Updated:
+* Dockerfile with deamon 
+* entrypoint.sh
+* README.md
 
 ## 00.00.00 (04/02/2025)
 Created:
