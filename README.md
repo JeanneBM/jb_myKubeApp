@@ -6,7 +6,10 @@ The project is a locally deployed Kubernetes environment with a single cluster, 
 * ```docker run --privileged -d --name k8s-cluster my-k8s-cluster```
 * ```docker exec -it k8s-cluster bash```
 * ```kind get clusters```
-* ```kind create cluster --name jenkins```
+* ```kind create cluster```
+  
+  ![obraz](https://github.com/user-attachments/assets/86c3e0fd-4e55-41d6-977a-15e5f838be33)
+
   
 Details: 
 * K8S is starting with a hypervisor
