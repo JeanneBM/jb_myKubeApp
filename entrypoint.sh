@@ -1,21 +1,19 @@
 #!/bin/bash
 set -e
 
-# Start Docker if not running
-dockerd &
+# Start Docker daemon in the background
+dockerd > /dev/null 2>&1 &
 
 # Wait for Docker to be ready
 until docker info >/dev/null 2>&1; do
-  sleep 1
+    echo "Waiting for Docker to start..."
+    sleep 2
 done
 
-# Create Kubernetes cluster with kind (if not already created)
+# Create the kind cluster if it does not exist
 if ! kind get clusters | grep -q "local-cluster"; then
-  kind create cluster --name local-cluster
+    kind create cluster --name local-cluster
 fi
 
-# Create Jenkins namespace
-kubectl create namespace jenkins
-
-# Keep container running
+# Keep the container running
 exec "$@"
