@@ -1,6 +1,9 @@
 The project is a locally deployed Kubernetes environment with a single cluster, where CI/CD, a Python application, and a Java application are organized into separate namespaces for clear isolation and management.
 
+```docker build -t my-k8s-cluster .```
 
-```sudo docker build -t kube```
+```docker run --privileged -d --name k8s-cluster my-k8s-cluster```
 
-```sudo docker run --privileged -v /var/run/docker.sock:/var/run/docker.sock kube```
+```docker exec -it k8s-cluster bash```
+
+
