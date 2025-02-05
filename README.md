@@ -10,6 +10,18 @@ The project is a locally deployed Kubernetes environment with a single cluster, 
   
   ![obraz](https://github.com/user-attachments/assets/86c3e0fd-4e55-41d6-977a-15e5f838be33)
 
+* kind-control-plane
+
+![obraz](https://github.com/user-attachments/assets/29bea509-b87e-4b28-944b-6b93126c5142)
+
+* local-cluster-control-plane
+
+![obraz](https://github.com/user-attachments/assets/e7de3e79-ca90-4367-81e3-79e22ea93c85)
+![obraz](https://github.com/user-attachments/assets/6df5d56a-3822-418f-99fc-16e12de127ce)
+
+
+
+
   
 Details: 
 * K8S is starting with a hypervisor
