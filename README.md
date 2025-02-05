@@ -3,10 +3,11 @@ The project is a locally deployed Kubernetes environment with a single cluster, 
 1. Launch the environment:
 
 * ```docker build -t my-k8s-cluster .```
-
 * ```docker run --privileged -d --name k8s-cluster my-k8s-cluster```
-
 * ```docker exec -it k8s-cluster bash```
+* ```kind get clusters```
+* ```kind create cluster --name jenkins```
+  
 
 K8S is starting with a hypervisor
 ![Screenshot from 2025-02-05 16-59-43](https://github.com/user-attachments/assets/01ee5c66-11cc-4521-83d2-f7b74937b566)
