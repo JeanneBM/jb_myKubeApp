@@ -50,7 +50,7 @@ spec:
           value: "password"
         resources:
           requests:
-            memory: "1Gi"
+            memory: "500Mi"
             cpu: "500m"
           limits:
             memory: "2Gi"
