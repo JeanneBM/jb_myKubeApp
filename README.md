@@ -19,6 +19,8 @@ The project is a locally deployed Kubernetes environment with a single cluster, 
 
 * ```kubectl apply -f https://raw.githubusercontent.com/JeanneBM/jb_myKubeApp/jenkins/jenkins-svc.yaml```
 
+  * tooks +70s jenkins deployment to be Ready
+
 
 
 
