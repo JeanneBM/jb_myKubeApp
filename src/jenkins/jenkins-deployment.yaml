@@ -25,22 +25,6 @@ spec:
           name: http
         - containerPort: 50000
           name: jnlp
-	livenessProbe:
-          httpGet:
-            path: "/login"
-            port: 8080
-          initialDelaySeconds: 90
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 5
-        readinessProbe:
-          httpGet:
-            path: "/login"
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
         env:
         - name: JAVA_OPTS
           value: "-Djenkins.install.runSetupWizard=false"
