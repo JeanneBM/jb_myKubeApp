@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: jenkins
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
+      serviceAccountName: jenkins
+      initContainers:
+      - name: init-chown
+        image: alpine
+        securityContext:
+          runAsUser: 0 
+          privileged: true
+        command: ["sh", "-c", "chown -R 1000:1000 /var/jenkins_home"]
+        volumeMounts:
+        - name: jenkins-home
+          mountPath: /var/jenkins_home
+      containers:
+      - name: jenkins
+        image: jenkins/jenkins:lts
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 50000
+          name: jnlp
+        livenessProbe:
+          httpGet:
+            path: "/login"
+            port: 8080
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: "/login"
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        env:
+        - name: JAVA_OPTS
+          value: "-Djenkins.install.runSetupWizard=false"
+        - name: JENKINS_ADMIN_USER
+          value: "admin"
+        - name: JENKINS_ADMIN_PASSWORD
+          value: "password"
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: jenkins-home
+          mountPath: /var/jenkins_home
+      volumes:
+      - name: jenkins-home
+        persistentVolumeClaim:
+          claimName: jenkins-pvc
