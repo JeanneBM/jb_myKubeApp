@@ -20,6 +20,13 @@ spec:
         ports:
         - containerPort: 8080
         - containerPort: 50000
+        resources:
+          requests:
+            memory: "1Gi"  
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
         volumeMounts:
         - name: jenkins-data
           mountPath: /var/jenkins_home
