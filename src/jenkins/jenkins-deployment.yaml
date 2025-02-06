@@ -2,9 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jenkins
-  namespace: jenkins
+  labels:
+    app: jenkins
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: jenkins
@@ -13,24 +14,35 @@ spec:
       labels:
         app: jenkins
     spec:
-      serviceAccountName: jenkins
       containers:
       - name: jenkins
         image: jenkins/jenkins:lts
         ports:
         - containerPort: 8080
+          name: http
         - containerPort: 50000
+          name: jnlp
+        env:
+        - name: JAVA_OPTS
+          value: "-Djenkins.install.runSetupWizard=false"
+        - name: JENKINS_ADMIN_USER
+          value: "admin"
+        - name: JENKINS_ADMIN_PASSWORD
+          value: "password"
         resources:
           requests:
-            memory: "1Gi"  
+            memory: "512Mi"
             cpu: "500m"
           limits:
-            memory: "2Gi"
-            cpu: "1000m"
+            memory: "1Gi"
+            cpu: "1"
         volumeMounts:
-        - name: jenkins-data
+        - name: jenkins-home
           mountPath: /var/jenkins_home
       volumes:
-      - name: jenkins-data
+      - name: jenkins-home
         persistentVolumeClaim:
           claimName: jenkins-pvc
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
