@@ -17,7 +17,7 @@ The project is a locally deployed Kubernetes environment with a single cluster, 
 # ![obraz](https://github.com/user-attachments/assets/e7de3e79-ca90-4367-81e3-79e22ea93c85)
 # ![obraz](https://github.com/user-attachments/assets/6df5d56a-3822-418f-99fc-16e12de127ce)
 
-* ```kubectl apply -f https://raw.githubusercontent.com/JeanneBM/jb_myKubeApp/main/jenkins-svc.yaml```
+* ```kubectl apply -f https://raw.githubusercontent.com/JeanneBM/jb_myKubeApp/jenkins/jenkins-svc.yaml```
 
 
 
