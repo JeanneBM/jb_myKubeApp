@@ -18,6 +18,13 @@ spec:
         runAsUser: 1000
         fsGroupChangePolicy: "OnRootMismatch"
       serviceAccountName: jenkins
+      initContainers:
+      - name: init-chown
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:1000 /var/jenkins_home"]
+        volumeMounts:
+        - name: jenkins-home
+          mountPath: /var/jenkins_home
       containers:
       - name: jenkins
         image: jenkins/jenkins:lts
