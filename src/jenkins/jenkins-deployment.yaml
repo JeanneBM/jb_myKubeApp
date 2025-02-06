@@ -20,7 +20,7 @@ spec:
       serviceAccountName: jenkins
       initContainers:
       - name: init-chown
-        image: busybox
+        image: alpine
         securityContext:
           runAsUser: 0 
         command: ["sh", "-c", "chown -R 1000:1000 /var/jenkins_home"]
