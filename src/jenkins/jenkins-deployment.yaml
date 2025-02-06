@@ -16,6 +16,7 @@ spec:
       securityContext:
         fsGroup: 1000
         runAsUser: 1000
+        fsGroupChangePolicy: "OnRootMismatch"
       serviceAccountName: jenkins
       containers:
       - name: jenkins
