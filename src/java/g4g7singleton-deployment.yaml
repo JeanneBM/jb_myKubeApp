@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: g4g7singleton-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: g4g7singleton
+  template:
+    metadata:
+      labels:
+        app: g4g7singleton
+    spec:
+      containers:
+      - name: g4g7singleton
+        image: jeannebm/g4g7singleton:latest
+        ports:
+        - containerPort: 8080
