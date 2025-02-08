@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pycalculator-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pycalculator
+  template:
+    metadata:
+      labels:
+        app: pycalculator
+    spec:
+      containers:
+      - name: pycalculator
+        image: jeannebm/pycalculator:latest
+        ports:
+        - containerPort: 5000
