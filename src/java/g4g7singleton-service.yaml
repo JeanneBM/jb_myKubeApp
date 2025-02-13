@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: g4g7singleton-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: g4g7singleton
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
