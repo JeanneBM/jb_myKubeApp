@@ -1,0 +1,5 @@
+build/
+*.jar
+README.md
+*.yaml
+tests/

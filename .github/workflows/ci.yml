@@ -1,32 +1,108 @@
 name: CI
-
-on: [push, pull_request]
-
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  test:
+  unit:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
-
-      - name: Install dependencies
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements-dev.txt
+            src/python/requirements.txt
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+      - run: bash scripts/test-java.sh
+      - name: Check shell syntax
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov coveralls
-
-      - name: Run tests with coverage
-        run: pytest --cov=src --cov-report=xml
-
-      - name: Upload coverage to Coveralls
+          for script in entrypoint.sh scripts/*.sh; do
+            bash -n "$script"
+          done
+  integration:
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLUSTER_NAME: mykubeapp-ci
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned kind and kubectl
+        run: |
+          curl -fsSLo kind https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64
+          echo "aee6151561422756b764a4ae28e7f44cda5af5a9eead3cc9985112b1de8d8e0d  kind" | sha256sum --check
+          sudo install -m 0755 kind /usr/local/bin/kind
+          rm kind
+          curl -fsSLo kubectl https://dl.k8s.io/release/v1.35.8/bin/linux/amd64/kubectl
+          curl -fsSLo kubectl.sha256 https://dl.k8s.io/release/v1.35.8/bin/linux/amd64/kubectl.sha256
+          echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+          sudo install -m 0755 kubectl /usr/local/bin/kubectl
+          rm kubectl kubectl.sha256
+      - name: Build images and deploy all components
+        run: bash scripts/deploy.sh
+      - name: Verify services over HTTP
+        run: bash scripts/smoke-test.sh
+      - name: Save tested application images
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker save -o images.tar "mykubeapp/pycalculator:$IMAGE_TAG" "mykubeapp/g4g7singleton:$IMAGE_TAG"
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          name: tested-images
+          path: images.tar
+          retention-days: 1
+      - name: Diagnostics
+        if: failure()
+        run: |
+          kubectl --context "kind-$CLUSTER_NAME" get pods,pvc -A -o wide || true
+          kubectl --context "kind-$CLUSTER_NAME" get events -A --sort-by=.lastTimestamp || true
+          for namespace in python java jenkins; do
+            kubectl --context "kind-$CLUSTER_NAME" -n "$namespace" logs -l app --all-containers --tail=100 || true
+          done
+      - name: Remove disposable CI cluster
+        if: always()
+        run: kind delete cluster --name "$CLUSTER_NAME"
+  publish:
+    needs: integration
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: tested-images
+      - name: Publish the exact tested images to GHCR
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        run: coveralls --service=github
-
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker load -i images.tar
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+          owner=$(printf '%s' "$REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
+          for app in pycalculator g4g7singleton; do
+            image="ghcr.io/$owner/jb-mykubeapp-$app:$IMAGE_TAG"
+            docker tag "mykubeapp/$app:$IMAGE_TAG" "$image"
+            docker push "$image"
+          done

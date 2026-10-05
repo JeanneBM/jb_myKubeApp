@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title></title>
+    <title>PyCalculator</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"
@@ -28,24 +28,30 @@
     <!-- Form -->
     <div class="container">
       <form action="/calculations" method="POST">
-        <label for="Number One">Enter the first number: </label>
+        <label for="x">Enter the first number: </label>
         <input
           type="number"
           placeholder="First Number"
           class="u-full-width"
           name="x"
+          id="x"
+          step="any"
+          required
         />
 
-        <label for="Number Two">Enter the second number: </label>
+        <label for="y">Enter the second number: </label>
         <input
           type="number"
           placeholder="Second Number"
           class="u-full-width"
           name="y"
+          id="y"
+          step="any"
+          required
         />
 
-        <label for="Operation">What kind of operation should be performed?</label>
-        <select class="u-full-width" name="operation">
+        <label for="operation">What kind of operation should be performed?</label>
+        <select class="u-full-width" name="operation" id="operation">
           <option value="addition">Addition</option>
           <option value="subtraction">Subtraction</option>
           <option value="multiplication">Multiplication</option>
@@ -54,9 +60,11 @@
 
         <input type="submit" value="Perform" id="calc_btn" />
         <br />
-        <div class="alert">
-          {{ sum }}
-        </div>
+        {% if error %}
+        <div class="alert" role="alert">{{ error }}</div>
+        {% elif result is defined %}
+        <div class="alert" aria-live="polite">{{ result }}</div>
+        {% endif %}
       </form>
     </div>
   </body>
