@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: python
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: java
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jenkins
