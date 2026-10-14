@@ -3,10 +3,14 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 : "${CLUSTER_NAME:=local-cluster}"
 context="kind-$CLUSTER_NAME"
+for tool in kubectl curl python3; do
+    command -v "$tool" >/dev/null || { echo "Install $tool before running smoke tests." >&2; exit 1; }
+done
 log_dir=$(mktemp -d)
 pids=()
 cleanup() {
     for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
+    for pid in "${pids[@]}"; do wait "$pid" 2>/dev/null || true; done
     rm -rf "$log_dir"
 }
 trap cleanup EXIT
@@ -16,13 +20,40 @@ kubectl --context "$context" -n java port-forward --address 127.0.0.1 svc/g4g7si
 pids+=("$!")
 kubectl --context "$context" -n jenkins port-forward --address 127.0.0.1 svc/jenkins 18081:8080 >"$log_dir/jenkins" 2>&1 &
 pids+=("$!")
+check_forwards() {
+    for pid in "${pids[@]}"; do
+        if ! kill -0 "$pid" 2>/dev/null; then
+            echo "A smoke-test port-forward exited; refusing to test unrelated listeners." >&2
+            cat "$log_dir"/* >&2
+            exit 1
+        fi
+    done
+}
+# Require each of our forwards to bind before sending any HTTP requests.
+for component in python java jenkins; do
+    ready=false
+    for attempt in {1..100}; do
+        check_forwards
+        if grep -q 'Forwarding from 127.0.0.1:' "$log_dir/$component"; then
+            ready=true
+            break
+        fi
+        sleep 0.1
+    done
+    if [[ "$ready" != true ]]; then
+        echo "Timed out waiting for $component port-forward." >&2
+        cat "$log_dir"/* >&2
+        exit 1
+    fi
+done
 for url in http://127.0.0.1:15000/healthz http://127.0.0.1:18080/healthz http://127.0.0.1:18081/login; do
+    check_forwards
     if ! curl --fail --silent --show-error --retry 20 --retry-connrefused --retry-delay 1 --max-time 5 "$url" >/dev/null; then
         cat "$log_dir"/* >&2
         exit 1
     fi
 done
-python - <<'PY'
+python3 - <<'PY'
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import urlopen
@@ -39,5 +70,6 @@ except HTTPError as error:
 with urlopen('http://127.0.0.1:18080/', timeout=5) as response:
     body = response.read().decode()
     assert all(message in body for message in ('Guten Tag!', 'Czesc!', 'Hola!'))
-print('Python, Java and Jenkins HTTP smoke tests passed')
 PY
+check_forwards
+echo 'Python, Java and Jenkins HTTP smoke tests passed'
